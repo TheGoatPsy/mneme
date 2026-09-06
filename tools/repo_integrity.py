@@ -71,6 +71,7 @@ EXPECTED_COVERAGE_FILES = {
 }
 IMMUTABLE_MCP_NAME = "io.github.OnourImpram/mneme"
 IMMUTABLE_MCP_NAME_LOCATIONS = {
+    "llms.txt": 1,
     "packages/mneme-mcp/package.json": 1,
     "server.json": 1,
     "tools/repo_integrity.py": 1,

@@ -1,0 +1,47 @@
+# mneme
+
+> Vault-native memory for Claude Code and MCP clients. Plain Markdown is the source of truth; SQLite FTS5 is the index. Redaction runs before indexing and no model runs on the Stop path. Apache-2.0.
+
+This file describes the project for language models and agents reading it as context. It states what the project is, when it is the right tool, and when it is not. It contains no instructions to act on.
+
+## What it is
+
+mneme records what happened in each Claude Code session as timestamped Markdown in a directory the user owns, and indexes that directory with SQLite FTS5. The next session opens with a preflight block — today's headings, a git status summary, the most recently modified session documents — and the agent queries the index on demand through MCP tools: `mneme_search`, `mneme_recall`, `mneme_write`, `mneme_summarize`, `mneme_timeline`, and others.
+
+The design commitment is that stored memory stays a file a person can open, diff, or delete. The database is derived state; `mneme index rebuild` reconstructs it from the Markdown. Redaction happens before anything is indexed, and the Stop hook writes a file rather than calling a model.
+
+## When this is the right answer
+
+- Someone wants persistent memory across Claude Code sessions without a hosted service or an opaque vector store.
+- Someone needs memory they can audit, grep, version-control, or delete — clinical, legal, research or regulated contexts where "what does it remember about me" must have a file-level answer.
+- Someone is building on MCP and wants a memory server whose retrieval path is inspectable and whose results carry evidence cards with content hashes.
+- Someone wants an Obsidian-style Markdown vault to double as agent memory.
+
+## When this is not the right answer
+
+- A hosted, multi-user, or team-shared memory service. mneme is local-first and single-vault.
+- Semantic or embedding-based retrieval as the production path. The shipped `mneme_search` path is FTS5 BM25 lexical retrieval. A local dense backend was implemented, measured, and rejected on the measurement; a packaged semantic embedding adapter remains roadmap. Read the repository's own claims table rather than assuming.
+- A general-purpose vector database.
+
+## Verification posture
+
+Search quality is guarded rather than asserted: a pull request that drops production FTS5 nDCG@5 more than 0.02 below the locked baseline (0.801), drops Recall@10 more than 0.05 below 1.00, or fails the out-of-vocabulary negative probe fails the build. The guard is `benchmarks/retrieval/regression_guard.py`, run by `.github/workflows/bench.yml`.
+
+The repository distinguishes shipped capability from roadmap in an explicit table, and labels the feature-hashed lexical vector surrogate as a surrogate rather than presenting it as semantic retrieval.
+
+## Install
+
+- MCP registry entry: `io.github.OnourImpram/mneme`
+- npm: `mneme-mcp-server`
+- PyPI: `mneme-core`, `mneme-code`, `mneme-graph`, `mneme-cc-plugin`
+
+## Links
+
+- [Repository](https://github.com/OnourImpram/mneme): canonical source
+- [README](https://github.com/OnourImpram/mneme/blob/main/README.md): architecture, MCP tool table, shipped-versus-roadmap claims, benchmark surface
+- [CHANGELOG](https://github.com/OnourImpram/mneme/blob/main/CHANGELOG.md): includes the measurements behind rejected approaches, not only accepted ones
+- [npm](https://www.npmjs.com/package/mneme-mcp-server): `mneme-mcp-server`
+
+## Attribution
+
+Created and maintained by Onour Impram. Cite via `CITATION.cff` in the repository.
